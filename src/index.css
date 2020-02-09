@@ -14,22 +14,19 @@ html{
   width: 150px;
   height: 100%;
   position: fixed;
+  display: none;
   z-index: 1;
   margin-top: -20px;
 }
 
 .sideEntry{
-  color: lightgray;
+  color: darkgray;
   margin: 25px 5px;
 }
 
 .sideEntry:hover{
   color: white;
   cursor: pointer;
-}
-
-.profiles{
-  margin-left: 150px;
 }
 
 body{
@@ -54,16 +51,13 @@ body{
   display: inline-block;
   position: sticky;
   overflow: hidden;
-  left: 25%
+  left: 20%
 }
 .username{
   display: inline-block;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
-.sideEntry{
-
 }
 
 .artist{

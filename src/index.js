@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import {MdClose} from 'react-icons/md';
+import {MdClose, MdMenu} from 'react-icons/md';
 
 class App extends React.Component {
     constructor(props) {
@@ -11,15 +11,23 @@ class App extends React.Component {
             profilesList: [],
             matched: [],
             rejected: [],
-            modes: "profiles"
+            modes: "profiles",
+            hideSide: true
         };
     }
 
     componentDidMount() {
-        var fakedata = [{username: 'Jeremy', genre: 'Pop', artists: ['Taylor Swift', 'Kanye West', 'Katy Perry']},
-            {username: 'Vicky', genre: 'Pop', artists: ['Ariana Grande', 'Rihanna']},
-            {username: 'Patrick', genre: 'Rock', artists: ['AC/DC', 'Guns N\' Roses']},
-            {username: 'Apurav', genre: 'Pop', artists: ['Beyoncé', 'Katy Perry']},];
+        fetch("https://concert-companion.appspot.com/api/userprofile")
+            .then(data => data.json())
+            .then(responce => console.log(responce))
+            .catch(error => console.log(error));
+        var fakedata = [{
+            name: 'Jeremy', email: "jeremyrudman@gmail.com", genre: 'Pop',
+            artists: ['Taylor Swift', 'Kanye West']
+        },
+            {name: 'Vicky', email: "vicky@gmail.com", genre: 'Pop', artists: ['Ariana Grande', 'Rihanna']},
+            {name: 'Patrick', email: "fatrick1999@gmail.com", genre: 'Rock', artists: ['AC/DC', 'Guns N\' Roses']},
+            {name: 'Apurav', email: "apurav.khare@gmail.com", genre: 'Pop', artists: ['Beyoncé', 'Katy Perry']},];
         this.setState({
             profilesList: fakedata
         })
@@ -54,7 +62,7 @@ class App extends React.Component {
         return data.toString()
     }
 
-    removeMatched(user){
+    removeMatched(user) {
         const tempM = this.state.matched;
         const tempP = this.state.profilesList;
         tempP.push(user);
@@ -65,7 +73,7 @@ class App extends React.Component {
         })
     }
 
-    removeRejected(user){
+    removeRejected(user) {
         const tempR = this.state.rejected;
         const tempP = this.state.profilesList;
         tempP.push(user);
@@ -79,8 +87,8 @@ class App extends React.Component {
     formatMatched(data) {
         return data.map((item) =>
             <div className="userListing">
-                <div className="username">&nbsp;{item.username}</div>
-                <div className="genre">{item.genre}</div>
+                <div className="username">&nbsp;{item.name}</div>
+                <div className="genre">{item.email}</div>
                 <div className="artist">{this.formatArtist(item.artists)}</div>
                 <button className="reject" onClick={this.removeMatched.bind(this, item)}><MdClose
                     className="reject_icon"/></button>
@@ -91,8 +99,8 @@ class App extends React.Component {
     formatRejected(data) {
         return data.map((item) =>
             <div className="userListing">
-                <div className="username">&nbsp;{item.username}</div>
-                <div className="genre">{item.genre}</div>
+                <div className="username">&nbsp;{item.name}</div>
+                {/*<div className="genre">{item.genre}</div>*/}
                 <div className="artist">{this.formatArtist(item.artists)}</div>
                 <button className="reject" onClick={this.removeRejected.bind(this, item)}><MdClose
                     className="reject_icon"/></button>
@@ -103,8 +111,8 @@ class App extends React.Component {
     formatData(data) {
         return data.map((item) =>
             <div className="userListing">
-                <div className="username">&nbsp;{item.username}</div>
-                <div className="genre">{item.genre}</div>
+                <div className="username">&nbsp;{item.name}</div>
+                {/*<div className="genre">{item.genre}</div>*/}
                 <div className="artist">{this.formatArtist(item.artists)}</div>
                 <button className="reject" onClick={this.dislikeUser.bind(this, item)}><MdClose
                     className="reject_icon"/></button>
@@ -117,37 +125,53 @@ class App extends React.Component {
         this.setState({sidebarOpen: open});
     }
 
-    setMode(mode){
+    setMode(mode) {
         this.setState({
             modes: mode
         })
     }
 
+    sidebarHide(){
+        if(!this.state.hideSide){
+            document.getElementById("sidebar").style.display = "none"
+        }else{
+            document.getElementById("sidebar").style.display = "block"
+        }
+        this.setState({
+            hideSide: !this.state.hideSide
+        })
+    }
+
     render() {
         var displayProfiles;
-        if(this.state.modes === 'profiles') {
+        var label;
+        if (this.state.modes === 'profiles') {
             displayProfiles = this.formatData(this.state.profilesList);
-        } else if(this.state.modes === 'matched'){
-            displayProfiles = this.formatMatched(this.state.matched)
+        } else if (this.state.modes === 'matched') {
+            displayProfiles = this.formatMatched(this.state.matched);
+            label = "Email";
         } else {
             displayProfiles = this.formatRejected(this.state.rejected)
         }
         return (
             <div>
                 <div className="header">
+                    <button className="menuB"
+                    onClick={
+                        this.sidebarHide.bind(this)
+                    }><MdMenu style={{height:"25px", width:"25px"}}/></button>
                     <span>Concert Companion</span></div>
-                <div className="sidebar">
-                    <div className="sideEntry" onClick={this.setMode.bind(this,"profiles")}>Find</div>
-                    <div className="sideEntry" onClick={this.setMode.bind(this,"matched")}>Matched</div>
-                    <div className="sideEntry" onClick={this.setMode.bind(this,"rejected")}>Rejected</div>
+                <div id="sidebar" className="sidebar">
+                    <div className="sideEntry" onClick={this.setMode.bind(this, "profiles")}>Find</div>
+                    <div className="sideEntry" onClick={this.setMode.bind(this, "matched")}>Matched</div>
+                    <div className="sideEntry" onClick={this.setMode.bind(this, "rejected")}>Rejected</div>
                 </div>
                 <div className="profiles">
                     <div className="userListing">
                         <span>&nbsp; Name</span>
-                        <span style={{position: "sticky", left: "25%"}}>Favorite Genre</span>
+                        <span style={{position: "sticky", left: "20%"}}>{label}</span>
                         <span style={{position: "sticky", left: "50%"}}>Favorite Artists</span>
                     </div>
-
                     {displayProfiles}
                 </div>
             </div>
